@@ -8,6 +8,7 @@
 </head>
 <body>
     <h3>Student LIst</h3>
+    
     <?php 
        $rawData =  $conn->query("SELECT * FROM allstudents"); ?>
 
