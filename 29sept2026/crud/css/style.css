@@ -56,7 +56,9 @@ h3 {
 }
 
 .btn {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 	background: #2563eb;
 	color: #fff;
 	padding: 10px 18px;
@@ -64,10 +66,22 @@ h3 {
 	text-decoration: none;
 	font-weight: bold;
 	transition: 0.3s ease;
+	box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
 }
 
 .btn:hover {
 	background: #1d4ed8;
+	transform: translateY(-1px);
+}
+
+.btn svg {
+	width: 16px;
+	height: 16px;
+	stroke: currentColor;
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
 }
 
 table {
@@ -94,17 +108,47 @@ tr:nth-child(even) {
 }
 
 .action a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
 	color: #2563eb;
+	background: #ffffff;
+	border: 1px solid #bfdbfe;
+	border-radius: 7px;
 	text-decoration: none;
-	font-weight: 600;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.action a:hover {
-	text-decoration: underline;
+.action a:hover,
+.action a:focus-visible {
+	background: #dbeafe;
+	border-color: #93c5fd;
+	color: #1d4ed8;
+	outline: none;
+}
+
+.action svg {
+	width: 17px;
+	height: 17px;
+	stroke: currentColor;
+	fill: none;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
 }
 
 .danger {
 	color: #dc2626 !important;
+	border-color: #fecaca !important;
+}
+
+.action .danger:hover,
+.action .danger:focus-visible {
+	background: #fee2e2;
+	border-color: #fca5a5 !important;
+	color: #b91c1c !important;
 }
 
 form {
