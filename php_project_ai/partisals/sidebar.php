@@ -330,8 +330,8 @@
                    <img src="assets/images/avatars/01.png" alt="">
                 </div>
                 <div class="user-info">
-                  <h5 class="mb-0 user-name">Jhon Maxwell</h5>
-                  <p class="mb-0 user-designation">UI Engineer</p>
+                  <h5 class="mb-0 user-name"><?= htmlspecialchars($_SESSION['user_email'] ?? 'User', ENT_QUOTES, 'UTF-8') ?></h5>
+                  <p class="mb-0 user-designation">Signed in</p>
                 </div>
               </div>
               <ul class="dropdown-menu dropdown-menu-end">
@@ -358,9 +358,11 @@
                 <li>
                   <div class="dropdown-divider mb-0"></div>
                 </li>
-                <li><a class="dropdown-item" href="javascript:;"><span class="material-symbols-outlined me-2">
-                  logout
-                  </span><span>Logout</span></a>
+                <li>
+                  <form method="post" action="logout.php">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                    <button class="dropdown-item" type="submit"><span class="material-symbols-outlined me-2">logout</span><span>Logout</span></button>
+                  </form>
                 </li>
               </ul>
           </div>

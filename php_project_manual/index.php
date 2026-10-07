@@ -62,17 +62,44 @@
                 <p class="mb-0 fw-bold">OR</p>
                 <div class="line"></div>
               </div>
+              <?php
+              if (isset($_POST['login'])) {
+                extract($_POST);
+                $password = md5($password);
+                include_once('dbconfig.php');
+                //echo "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+                $result = $conn->query("SELECT * FROM users WHERE email = '$email' AND password = '$password'");
+
+                $row = $result->fetch_assoc();
+
+                if ($result->num_rows > 0) {
+                  session_start();
+                  $_SESSION['email'] = $email;
+                  $_SESSION['name'] = $row['name'];
+
+                  header("Location: dashboard.php");
+                } else {
+                  echo '
+                  <div class="alert border-0 bg-danger-subtle alert-dismissible fade show">
+                  <div class="d-flex align-items-center">
+                    <div class="text-danger">A simple danger alert—check it out!</div>
+                  </div>
+                  </div>
+                  ';
+                }
+              }
+              ?>
 
               <div class="form-body mt-4">
-                <form class="row g-3">
+                <form class="row g-3" method="post">
                   <div class="col-12">
                     <label for="inputEmailAddress" class="form-label">Email</label>
-                    <input type="email" class="form-control  border-3" id="inputEmailAddress" placeholder="jhon@example.com">
+                    <input type="email" name="email" class="form-control  border-3" id="inputEmailAddress" placeholder="jhon@example.com">
                   </div>
                   <div class="col-12">
                     <label for="inputChoosePassword" class="form-label">Password</label>
                     <div class="input-group" id="show_hide_password">
-                      <input type="password" class="form-control border-end-0  border-3" id="inputChoosePassword" value="12345678" placeholder="Enter Password"> 
+                      <input type="password" name="password" class="form-control border-end-0  border-3" id="inputChoosePassword" value="" placeholder="Enter Password">
                       <a href="javascript:;" class="input-group-text bg-transparent  border-3"><i class="bi bi-eye-slash-fill"></i></a>
                     </div>
                   </div>
@@ -82,11 +109,11 @@
                       <label class="form-check-label" for="flexSwitchCheckChecked">Remember Me</label>
                     </div>
                   </div>
-                  <div class="col-md-6 text-end">	<a href="auth-cover-forgot-password.html">Forgot Password ?</a>
+                  <div class="col-md-6 text-end"> <a href="auth-cover-forgot-password.html">Forgot Password ?</a>
                   </div>
                   <div class="col-12">
                     <div class="d-grid">
-                      <button type="submit" class="btn  border-3 btn-primary">Login</button>
+                      <button type="submit" name="login" class="btn  border-3 btn-primary">Login</button>
                     </div>
                   </div>
                   <div class="col-12">
@@ -98,7 +125,7 @@
                 </form>
               </div>
 
-          </div>
+            </div>
           </div>
         </div>
 
@@ -116,8 +143,8 @@
   <script src="assets/js/jquery.min.js"></script>
 
   <script>
-    $(document).ready(function () {
-      $("#show_hide_password a").on('click', function (event) {
+    $(document).ready(function() {
+      $("#show_hide_password a").on('click', function(event) {
         event.preventDefault();
         if ($('#show_hide_password input').attr("type") == "text") {
           $('#show_hide_password input').attr('type', 'password');
