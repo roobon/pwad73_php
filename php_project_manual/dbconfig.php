@@ -1,10 +1,8 @@
 <?php
-    // Connection with mySQL
+// Connection with mySQL
 
-    $conn = new mysqli("localhost", "root", "", "php_project_manual_db");
+$conn = new mysqli("localhost", "root", "", "cleaning_service");
 
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-     } 
-   
-?>
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}

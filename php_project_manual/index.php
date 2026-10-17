@@ -65,24 +65,37 @@
               <?php
               if (isset($_POST['login'])) {
                 extract($_POST);
-                $password = md5($password);
+                $password = sha1($password);
+
                 include_once('dbconfig.php');
-                //echo "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+                echo "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
                 $result = $conn->query("SELECT * FROM users WHERE email = '$email' AND password = '$password'");
 
                 $row = $result->fetch_assoc();
+
 
                 if ($result->num_rows > 0) {
                   session_start();
                   $_SESSION['email'] = $email;
                   $_SESSION['name'] = $row['name'];
+                  $_SESSION['role'] = $row['role'];
 
-                  header("Location: dashboard.php");
+
+                  if ($row['role'] == 'admin') {
+                    $_SESSION['url'] = 'dashboard_admin.php';
+                    header("Location: dashboard_admin.php");
+                  } else if ($row['role'] == 'customer') {
+                    $_SESSION['url'] = 'dashboard_customer.php';
+                    header("Location: dashboard_customer.php");
+                  } else if ($row['role'] == 'staff') {
+                    $_SESSION['url'] = 'dashboard_staff.php';
+                    header("Location: dashboard_staff.php");
+                  }
                 } else {
                   echo '
                   <div class="alert border-0 bg-danger-subtle alert-dismissible fade show">
                   <div class="d-flex align-items-center">
-                    <div class="text-danger">A simple danger alert—check it out!</div>
+                    <div class="text-danger">Problem Login</div>
                   </div>
                   </div>
                   ';

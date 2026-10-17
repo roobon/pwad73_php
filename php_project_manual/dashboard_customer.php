@@ -1,6 +1,12 @@
 <?php
 session_start();
+if (!isset($_SESSION['email'])) {
+  header("Location: index.php");
+}
 
+if ($_SESSION['role'] != 'customer') {
+  header("Location: unauthorize.php");
+}
 ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -8,7 +14,7 @@ session_start();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PHP Project Manual</title>
+  <title>Customer Dashboard</title>
 
   <?php include 'partials/home_styles.php'; ?>
 </head>
@@ -107,7 +113,7 @@ session_start();
           <div class="card-header bg-transparent">
             <div class="d-flex align-items-center">
               <div class="">
-                <h6 class="mb-0 fw-bold">Dashboard</h6>
+                <h6 class="mb-0 fw-bold">Customer Dashboard</h6>
               </div>
               <div class="dropdown ms-auto">
                 <button type="button" class="btn-option dropdown-toggle dropdown-toggle-nocaret cursor-pointer" data-bs-toggle="dropdown"><i class="bi bi-three-dots fs-4"></i>
@@ -127,7 +133,7 @@ session_start();
             </div>
           </div>
           <div class="card-body">
-            <img class="img-fluid" src="assets/images/welcome.jpg" alt="">
+            <img class="img-fluid" src="assets/images/welcome_admin.jfif" alt="">
           </div>
         </div>
       </div>
