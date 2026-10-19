@@ -20,7 +20,7 @@ session_start();
     <!--end header-->
 
     <!--start sidebar-->
-    <?php include 'partials/leftbar.php'; ?>
+    <?php include 'partials/leftbar_admin.php'; ?>
     <!--end sidebar-->
 
 

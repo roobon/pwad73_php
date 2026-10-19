@@ -26,7 +26,7 @@ if ($_SESSION['role'] != 'staff') {
   <!--end header-->
 
   <!--start sidebar-->
-  <?php include 'partials/leftbar.php'; ?>
+  <?php include 'partials/leftbar_staff.php'; ?>
   <!--end sidebar-->
 
 

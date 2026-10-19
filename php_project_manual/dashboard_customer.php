@@ -26,7 +26,7 @@ if ($_SESSION['role'] != 'customer') {
   <!--end header-->
 
   <!--start sidebar-->
-  <?php include 'partials/leftbar.php'; ?>
+  <?php include 'partials/leftbar_customer.php'; ?>
   <!--end sidebar-->
 
 
