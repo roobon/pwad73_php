@@ -25,32 +25,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             require_once __DIR__ . '/dbconfig.php';
+            $statement = mysqli_prepare($conn, 'SELECT id, email, password_hash, role FROM users WHERE email = ? LIMIT 1');
 
-            $escapedEmail = mysqli_real_escape_string($conn, $email);
-            $query = "SELECT id, email, password_hash FROM users WHERE email = '$escapedEmail' LIMIT 1";
-            $result = mysqli_query($conn, $query);
-
-            if ($result === false) {
-                error_log('Login query failed: ' . mysqli_error($conn));
+            if ($statement === false) {
+                error_log('Login query preparation failed: ' . mysqli_error($conn));
                 mysqli_close($conn);
                 $loginError = 'Unable to sign in right now. Please try again later.';
             } else {
-                $user = mysqli_fetch_assoc($result);
-                mysqli_free_result($result);
-
-                if ($user && hash_equals($user['password_hash'], md5($password))) {
-                    session_regenerate_id(true);
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_email'] = $user['email'];
-                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                mysqli_stmt_bind_param($statement, 's', $email);
+                if (!mysqli_stmt_execute($statement)) {
+                    error_log('Login query failed: ' . mysqli_stmt_error($statement));
+                    mysqli_stmt_close($statement);
                     mysqli_close($conn);
+                    $loginError = 'Unable to sign in right now. Please try again later.';
+                } else {
+                    mysqli_stmt_bind_result($statement, $userId, $userEmail, $passwordHash, $userRole);
+                    $userFound = mysqli_stmt_fetch($statement);
+                    mysqli_stmt_close($statement);
 
-                    header('Location: dashboard.php');
-                    exit;
+                    $passwordVerified = $userFound
+                        && is_string($passwordHash)
+                        && password_verify($password, $passwordHash);
+                    $legacyPasswordVerified = $userFound
+                        && is_string($passwordHash)
+                        && preg_match('/^[a-f0-9]{32}$/i', $passwordHash) === 1
+                        && hash_equals(strtolower($passwordHash), md5($password));
+
+                    if (($passwordVerified || $legacyPasswordVerified) && in_array($userRole, ['admin', 'customer', 'staff'], true)) {
+                        if ($legacyPasswordVerified) {
+                            $newPasswordHash = password_hash($password, PASSWORD_DEFAULT);
+                            $updateStatement = mysqli_prepare($conn, 'UPDATE users SET password_hash = ? WHERE id = ?');
+                            if ($updateStatement === false) {
+                                error_log('Password upgrade preparation failed: ' . mysqli_error($conn));
+                            } else {
+                                mysqli_stmt_bind_param($updateStatement, 'si', $newPasswordHash, $userId);
+                                if (!mysqli_stmt_execute($updateStatement)) {
+                                    error_log('Password upgrade failed: ' . mysqli_stmt_error($updateStatement));
+                                }
+                                mysqli_stmt_close($updateStatement);
+                            }
+                        }
+
+                        session_regenerate_id(true);
+                        $_SESSION['user_id'] = $userId;
+                        $_SESSION['user_email'] = $userEmail;
+                        $_SESSION['user_role'] = $userRole;
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        mysqli_close($conn);
+
+                        header('Location: dashboard.php');
+                        exit;
+                    }
+
+                    mysqli_close($conn);
+                    $loginError = 'Invalid email or password.';
                 }
-
-                mysqli_close($conn);
-                $loginError = 'Invalid email or password.';
             }
         } else {
             $loginError = 'Invalid email or password.';
@@ -70,7 +99,7 @@ if (!isset($_SESSION['csrf_token'])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Roksyn - Bootstrap 5 Admin Template</title>
+  <title>Sign in | Roksyn</title>
 
   <!--plugins-->
   <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
@@ -114,21 +143,6 @@ if (!isset($_SESSION['csrf_token'])) {
               <h4 class="fw-bold">Get Started Now</h4>
               <p class="mb-0">Enter your credentials to login your account</p>
 
-              <div class="row g-3 my-4">
-                <div class="col-12 col-lg-6">
-                  <button class="btn btn-light py-2 border-3 font-text1 fw-bold d-flex align-items-center justify-content-center w-100"><img src="assets/images/icons/google-2.png" width="18" class="me-2" alt="">Log In with Google</button>
-                </div>
-                <div class="col col-lg-6">
-                  <button class="btn btn-light py-2 border-3 font-text1 fw-bold d-flex align-items-center justify-content-center w-100"><img src="assets/images/icons/apple-logo.png" width="18" class="me-2" alt="">Log In with Apple</button>
-                </div>
-              </div>
-
-              <div class="separator section-padding">
-                <div class="line"></div>
-                <p class="mb-0 fw-bold">OR</p>
-                <div class="line"></div>
-              </div>
-
               <div class="form-body mt-4">
                 <form class="row g-3" method="post" action="index.php">
                   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
@@ -148,14 +162,6 @@ if (!isset($_SESSION['csrf_token'])) {
                       <a href="javascript:;" class="input-group-text bg-transparent  border-3"><i class="bi bi-eye-slash-fill"></i></a>
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <div class="form-check form-switch  border-3">
-                      <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked">
-                      <label class="form-check-label" for="flexSwitchCheckChecked">Remember Me</label>
-                    </div>
-                  </div>
-                  <div class="col-md-6 text-end">	<a href="auth-cover-forgot-password.html">Forgot Password ?</a>
-                  </div>
                   <div class="col-12">
                     <div class="d-grid">
                       <button type="submit" class="btn  border-3 btn-primary">Login</button>
@@ -163,7 +169,7 @@ if (!isset($_SESSION['csrf_token'])) {
                   </div>
                   <div class="col-12">
                     <div class="text-start">
-                      <p class="mb-0">Don't have an account yet? <a href="auth-cover-register.html">Sign up here</a>
+                      <p class="mb-0">Don't have an account yet? <a href="register.php">Create a customer account</a>
                       </p>
                     </div>
                   </div>

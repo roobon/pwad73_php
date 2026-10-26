@@ -1,9 +1,8 @@
 <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Roksyn - Bootstrap 5 Admin Template</title>
+    <title>Dashboard | Roksyn</title>
 
     <!--plugins-->
-    <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" >
     <link href="assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet">
     <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet">
     <!-- loader-->
